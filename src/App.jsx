@@ -1,371 +1,190 @@
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import { useEffect, useState } from "react";
-import "./App.css";
+import React, { useState, useEffect } from 'react';
+import DescriptionCard from './descriptionCard.jsx';
+import Navbar from './navbar.jsx';
+import ImageContent from './imageContent';  // Assuming this is your image component
+import './App.css'; // Assuming you have the necessary styles
+import Podcast from './podcast.jsx';
+import BadUi from './badUI.jsx'
+const App = () => {
+  // Predefined list of points with coordinates
+  const predefinedPoints = [
+    { id: "Poumon L", cx: 180, cy: 200, dataX: 180, dataY: 200, title: "🌬️ Poumons (Le Cycle de l’Eau ☔)", describ: "Les poumons fonctionnent comme le cycle de l’eau sur Terre ☁️, où l’évaporation et la condensation maintiennent l’équilibre atmosphérique. L’eau 💦 dans les poumons garde les voies respiratoires humides, facilitant les échanges d’oxygène et de dioxyde de carbone. Une déshydratation assèche ce cycle, tout comme une planète privée de pluie devient aride 🌵, rendant la vie difficile." },
+    { id: "Poumon R", cx: 250, cy: 200, dataX: 250, dataY: 200, title: "🌬️ Poumons (Le Cycle de l’Eau ☔)", describ: "Les poumons fonctionnent comme le cycle de l’eau sur Terre ☁️, où l’évaporation et la condensation maintiennent l’équilibre atmosphérique. L’eau 💦 dans les poumons garde les voies respiratoires humides, facilitant les échanges d’oxygène et de dioxyde de carbone. Une déshydratation assèche ce cycle, tout comme une planète privée de pluie devient aride 🌵, rendant la vie difficile." },
+    {
+      id: "Coeur", cx: 215, cy: 225, dataX: 215, dataY: 225, title: "❤️ Cœur (Les Courants Océaniques 🌊)", describ: "Tout comme les courants océaniques 🌊 distribuent la chaleur et les nutriments à travers la planète, l’eau 💧 dans le corps permet au cœur de pomper le sang efficacement. Elle garantit une bonne circulation pour transporter l’oxygène et les nutriments nécessaires à la vie. Sans eau, le cœur travaille plus dur, tout comme un déséquilibre des courants océaniques perturbe le climat global, mettant en danger les écosystèmes 🌍."
+    },
+    { id: "Mulscle", cx: 125, cy: 250, dataX: 190, dataY: 270, title: "Muscles (Les Marées 🌊)", describ: "Les muscles dépendent de l’eau 💧, tout comme les marées dépendent de la fluidité et des forces gravitationnelles 🌙. L’eau permet aux muscles de se contracter et de se relâcher efficacement. En cas de déshydratation, les muscles se contractent douloureusement 😖, tout comme des marées perturbées peuvent causer des déséquilibres dans les écosystèmes côtiers 🦀." },
+    { id: "Sys urinaire", cx: 212, cy: 440, dataX: 190, dataY: 270, title: "🛡️ Reins et Système Urinaire (Les Zones Humides 🐊)", describ: "Les reins sont comme les zones humides de la Terre 🐊, des filtres naturels qui purifient l’eau et maintiennent un équilibre vital. L’eau 💦 permet aux reins d’éliminer les toxines et de produire l’urine. Sans eau, ces “zones humides internes” ne fonctionnent plus correctement, laissant les toxines s’accumuler, comme les marécages drainés ne peuvent plus filtrer l’eau naturellement 🏞️." },
+    {
+      id: "Os", cx: 180, cy: 500, dataX: 190, dataY: 270, title: "🦴 Os (La Croûte Terrestre 🌋)", describ: "Les os sont comme la croûte terrestre 🌋 : solides mais flexibles grâce à l’eau présente dans la moelle osseuse et le cartilage. L’eau permet de lubrifier les articulations et d’amortir les chocs 🤸. Sans hydratation, les os deviennent rigides, tout comme une terre asséchée perd sa capacité à supporter la végétation et les constructions 🌾."
+    },
+    { id: "Peau", cx: 98, cy: 390, dataX: 190, dataY: 270, title: "🌍 Peau (La Surface de la Terre 🌄)", describ: "La peau peut être comparée à la surface terrestre 🌏, qui a besoin d’humidité pour rester robuste et protectrice. L’eau 💦 aide à maintenir l’élasticité de la peau et à réguler la température grâce à la transpiration 🌡️, tout comme les océans tempèrent le climat terrestre. En cas de manque d’eau, la peau devient sèche et craquelée, comme un sol desséché perdant sa capacité à abriter la vie 🐜." },
+    { id: "Intesteins", cx: 190, cy: 370, dataX: 190, dataY: 320, title: "🍽️ Intestins (Les Fleuves et Rivières 🏞️)", describ: "Les intestins ressemblent aux rivières 🏞️ qui transportent l’eau, les nutriments et éliminent les déchets. De la même manière que les rivières sculptent les paysages et nourrissent les sols 🌱, l’eau 💧 dans les intestins facilite la digestion et le transit intestinal. En cas de déshydratation, ces “fleuves internes” s’assèchent, causant des blocages, à l’image des rivières taries en période de sécheresse 🌾." },
+    // Add more points as needed
+  ];
 
-function App() {
-  const [activeIndex, setActiveIndex] = useState(1); // Start with the second item as active
-  const [sponsorVisible, setsponsorVisible] = useState(false);
-  const [SeeMore, setSeeMore] = useState(false);
-  const [Total, setTotal] = useState(0);
+  const [pinFormVisible, setPinFormVisible] = useState(false);
+  const [pinConfirmVisible, setPinConfirmVisible] = useState(false);
+  const [pinConfirmSuccessVisible, setPinConfirmSuccessVisible] = useState(false);
+  const [selectedPoint, setSelectedPoint] = useState(null);
+  const [card_x, setCardX] = useState(0);
+  const [card_y, setCardY] = useState(0);
+  const [navbarHeight, setNavbarHeight] = useState(0);
+  const [currentPage, setCurrentPage] = useState('acceuil');
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prevIndex) => (prevIndex + 1) % 4); // Cycle through indices 0, 1, 2
-    }, 100); // Change every 2 seconds
+    const handleClick = (e) => {
+      // Only handle the click event if it is on a circle element
+      if (e.target.tagName === 'circle') {
+        //console.log(e.target.id)
+        // Get the coordinates of the clicked circle
+        const newX = e.clientX;
+        const newY = e.clientY - navbarHeight; // Adjust for the navbar height
 
-    return () => clearInterval(interval); // Clean up interval on component unmount
-  }, []);
+        // Update card position only when clicking on a circle
+        setCardX((newX + 150) * 1.2); // Adjust for the circle's position;
+        setCardY(newY - navbarHeight - 100); // Adjust for the navbar height
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, [navbarHeight]);
+
+  const handleCircleClick = (point) => {
+    setSelectedPoint(point); // Set the selected point when a circle is clicked
+    setPinConfirmVisible(true); // Show the confirmation modal
+    setCardX(point.dataX); // Update card position with circle's coordinates
+    setCardY(point.dataY); // Update card position with circle's coordinates
+  };
+
+  const handleConfirmTrue = () => {
+    setPinConfirmVisible(false);
+    setPinFormVisible(true); // Show the form after confirmation
+  };
+
+  const handleCancelPin = () => {
+    setPinConfirmVisible(false);
+    setSelectedPoint(null); // Deselect the point and hide the confirmation modal
+  };
+
+  const handleFormSubmit = () => {
+    setPinFormVisible(false);
+    setPinConfirmSuccessVisible(true); // Show success message
+  };
+
+  const handleFormCancel = () => {
+    setPinFormVisible(false);
+    setPinConfirmVisible(true); // Show confirmation modal again
+  };
+
+  const handleSuccessClick = () => {
+    setPinConfirmSuccessVisible(false);
+  };
+
+  if (currentPage=='badUI')
+    return (<BadUi/>);
   return (
     <>
-      <Navbar bg="primary" data-bs-theme="dark">
-        <Container>
-          <Navbar.Brand href="#home">Délosé 💀</Navbar.Brand>
-          <Nav className="me-auto">
-            <Nav.Link href="#">Home</Nav.Link>
-            <Nav.Link
-              href="#features"
-              onClick={() => {
-                alert(
-                  "welcome to this website here we can shop at best prices !"
-                );
-              }}
-            >
-              Features
-            </Nav.Link>
-            <Nav.Link
-              href="#"
-              onClick={() => {
-                if (confirm(`Your Total is ${Total} DT`)) {
-                  alert("Thank you for your purchase");
-                  setTotal(0); // Reset Total to 0
-                } else {
-                  alert("Erreur de paiement");
-                }
-              }}
-            >
-              Shopping
-            </Nav.Link>
-            <Nav.Link href="#Fast Food">Fast Food</Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("Pizza cost 10DT Add to card ?")
-                  ? setTotal(Total + 10)
-                  : {}
-              }
-            >
-              Pizza
-            </Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("Burger cost 10DT Add to card ?")
-                  ? setTotal(Total + 10)
-                  : {}
-              }
-            >
-              Burger
-            </Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("Cooked Spagetti cost 10DT Add to card ?")
-                  ? setTotal(Total + 10)
-                  : {}
-              }
-            >
-              Spagetti
-            </Nav.Link>
-            <Nav.Link href="#Vegetables">Vegtebeles</Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("Peper cost 10DT Add to card ?")
-                  ? setTotal(Total + 10)
-                  : {}
-              }
-            >
-              Peper
-            </Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("Tomato cost 10DT Add to card ?")
-                  ? setTotal(Total + 10)
-                  : {}
-              }
-            >
-              Tomato
-            </Nav.Link>
-            <Nav.Link href="#pricing">Cars</Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("BMV M3 GTR cost 100000DT Add to card ?")
-                  ? setTotal(Total + 100000)
-                  : {}
-              }
-            >
-              BMV
-            </Nav.Link>
-            <Nav.Link href="#pricing">cOurses</Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("C programming language cost 27DT Add to card ?")
-                  ? setTotal(Total + 27)
-                  : {}
-              }
-            >
-              C
-            </Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("Java programming language cost 47DT Add to card ?")
-                  ? setTotal(Total + 47)
-                  : {}
-              }
-            >
-              Java
-            </Nav.Link>
-            <Nav.Link href="#pricing">Watches</Nav.Link>
-            <Nav.Link
-              href="#pricing"
-              onClick={() =>
-                confirm("C programming language cost 27000DT Add to card ?")
-                  ? setTotal(Total + 27000)
-                  : {}
-              }
-            >
-              Rolex
-            </Nav.Link>
-          </Nav>
-        </Container>
-      </Navbar>
-      <h1>Best seller items in the last 30 days!!! :</h1>
-      <div id="carouselExampleIndicators" className="carousel slide">
-        <div className="carousel-indicators">
-          <button
-            type="button"
-            data-bs-target="#carouselExampleIndicators"
-            data-bs-slide-to="0"
-            className="active"
-            aria-current="true"
-            aria-label="Slide 1"
-          ></button>
-          <button
-            type="button"
-            data-bs-target="#carouselExampleIndicators"
-            data-bs-slide-to="1"
-            aria-label="Slide 2"
-          ></button>
-          <button
-            type="button"
-            data-bs-target="#carouselExampleIndicators"
-            data-bs-slide-to="2"
-            aria-label="Slide 3"
-          ></button>
-          <button
-            type="button"
-            data-bs-target="#carouselExampleIndicators"
-            data-bs-slide-to="3"
-            aria-label="Slide 4"
-          ></button>
-        </div>
-        <div className="carousel-inner">
-          <div className={`carousel-item ${activeIndex === 0 ? "active" : ""}`}>
-            <img src="Messi.jpg" className="d-block w-100" alt="..." />
-          </div>
-          <div className={`carousel-item ${activeIndex === 1 ? "active" : ""}`}>
-            <img src="Meme.jpg" className="d-block w-100" alt="..." />
-          </div>
-          <div className={`carousel-item ${activeIndex === 2 ? "active" : ""}`}>
-            <img src="Cars.jpg" className="d-block w-100" alt="..." />
-          </div>
-          <div className={`carousel-item ${activeIndex === 3 ? "active" : ""}`}>
-            <img src="Mirage.jpg" className="d-block w-100" alt="..." />
-          </div>
-        </div>
-        <button
-          className="carousel-control-prev"
-          type="button"
-          data-bs-target="#carouselExampleIndicators"
-          data-bs-slide="prev"
-        >
-          <span
-            className="carousel-control-prev-icon"
-            aria-hidden="true"
-          ></span>
-          <span className="visually-hidden">Previous</span>
-        </button>
-        <button
-          className="carousel-control-next"
-          type="button"
-          data-bs-target="#carouselExampleIndicators"
-          data-bs-slide="next"
-        >
-          <span
-            className="carousel-control-next-icon"
-            aria-hidden="true"
-          ></span>
-          <span className="visually-hidden">Next</span>
-        </button>
-      </div>
-      <div className="container">
-        <div className="row">
-          <h1>Check out our new best seller :</h1>
-          <div className="col">
-            <i>
-              <code>
-                No problem! Here&apos;s the information about the Mercedes CLR
-                GTR: The Mercedes CLR GTR is a remarkable racing car celebrated
-                for its outstanding performance and sleek design. Powered by a
-                potent 6.0-liter V12 engine, it delivers over 600 horsepower.
-                Acceleration from 0 to 100 km/h takes approximately 3.7 seconds,
-                with a remarkable top speed surprising 320 km/h.🥇Incorporatin
-                adventure aerodynamic features and cutting-edge stability
-                technologies, the CLR GTR ensures exceptional stability and
-                control, particularly during high-speed maneuvers. 💨Originally
-                priced at around $1.5 million, the Mercedes CLR GTR is
-                considered one of the most exclusive and prestigious racing cars
-                ever produced. 💰Its limited production run of just five units
-                adds to its rarity, making it highly sought after by racing
-                enthusiasts and collectors worldwide. 🌎&quot;
-                <button
-                  className="btn btn-warning"
-                  onClick={() => {
-                    alert("Added to chart !");
-                  }}
-                >
-                  Add it to my chart that may or may not contain other items
-                </button>
-                <button
-                  className="btn btn-warning"
-                  onClick={() => {
-                    setSeeMore(!SeeMore);
-                  }}
-                >
-                  See More
-                </button>
-              </code>
-            </i>
-          </div>
-          <div className="col">
-            <button className="btn btn-warning">
-              {" "}
-              <a href="Supermarket-Catalog.pdf" download>
-                Download Catalog
-              </a>
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                setSeeMore(!SeeMore);
-              }}
-            >
-              {" "}
-              See More
-            </button>
-            <button
-              className="btn btn-dark"
-              onClick={() => {
-                const name = prompt("What is your Issue?");
-
-                if (name) {
-                  alert(`Issue submited: ${name}!`);
-                } else {
-                  alert("You didn't submit >:(");
-                }
-              }}
-            >
-              {" "}
-              Send Report to the developpers about a bug
-            </button>
-            <img
-              src={"shop.jpg"}
-              alt="Shopping is fun !!"
-              className="d-block w-100"
-            />
-            {SeeMore && (
-              <code>
-                The Mercedes CLR GTR is an extraordinary example of engineering
-                excellence and performance-driven design, marking a pinnacle in
-                racing car history. Here&apos;s an in-depth look at this
-                exceptional machine: 1. Powertrain & Performance At the heart of
-                the Mercedes CLR GTR lies a 6.0-liter V12 engine that roars with
-                more than 600 horsepower, a testament to Mercedes-Benz’s
-                engineering prowess. This powerhouse enables the CLR GTR to
-                achieve: 0–100 km/h in 3.7 seconds, providing blistering
-                acceleration. A top speed of 320 km/h, placing it among the
-                fastest racing cars of its era. The engine is not just about raw
-                power; it&apos;s paired with a precision-tuned gearbox that
-                ensures seamless power delivery, crucial for both straights and
-                sharp turns on the race track. 2. Aerodynamics & Design The CLR
-                GTR’s design is a fusion of aesthetics and functionality. Its
-                low-slung profile and elongated bodywork are meticulously
-                crafted to reduce drag and maximize downforce. Key aerodynamic
-                features include: Large front splitters and rear spoilers,
-                optimizing airflow for stability at high speeds. Advanced
-                stability control technologies, enhancing handling during
-                demanding maneuvers. A lightweight carbon fiber body, reducing
-                weight while maintaining structural integrity. These innovations
-                made it a formidable contender in racing, especially in
-                endurance events where stability and efficiency are critical. 3.
-                Exclusivity & Rarity With a limited production run of just five
-                units, the CLR GTR is a true collector&apos;s dream. This
-                exclusivity stems from its design purpose as a race-focused
-                vehicle, with only a handful made to meet homologation
-                requirements for the FIA GT Championship. Each unit was priced
-                at around $1.5 million, reflecting its elite craftsmanship and
-                cutting-edge technology. Its rarity has driven its value even
-                higher in the collector’s market, with prices today often
-                reaching many millions of dollars. 4. Historical Context The CLR
-                GTR is part of the legendary Mercedes-Benz racing lineage. It
-                was designed to compete in the late 1990s against fierce rivals
-                like the Porsche 911 GT1 and McLaren F1 GTR. While its
-                performance was stellar, it is also remembered for challenges it
-                faced during the 1999 Le Mans 24 Hours, where aerodynamic
-                instability at high speeds led to dramatic airborne incidents.
-                5. Legacy Today, the Mercedes CLR GTR remains a symbol of
-                innovation and exclusivity. Its rarity, combined with its
-                stunning design and exceptional performance, has made it a
-                centerpiece in automotive history. It continues to inspire
-                modern supercar designs and remains a testament to
-                Mercedes-Benz’s commitment to pushing the boundaries of
-                automotive engineering. For enthusiasts and collectors, owning a
-                CLR GTR is not just about having a car—it’s about possessing a
-                piece of racing history, a testament to speed, luxury, and
-                unparalleled craftsmanship. 🏎️✨
-              </code>
-            )}
-          </div>
-          <div className="row" style={{ margin: "auto" }}>
-            <h1>
-              <a
-                onClick={() => {
-                  setsponsorVisible(!sponsorVisible);
-                }}
+      <Navbar setCurrentPage={setCurrentPage} />
+      {
+        currentPage === 'acceuil' ? (
+          <>
+            <div >
+              <svg
+                className='humanAnatomy'
+                id="humanAnatomy"
+                xmlns="http://www.w3.org/2000/svg"
+                width="420px"
+                height="780px"
+                viewBox="0 0 420 780"
               >
-                Our Sponsors
-              </a>
-            </h1>
-            {sponsorVisible && (
-              <ul>
-                <li>ZENIKA</li>
-                <figcaption>
-                  Le lien entre le monde organique et le monde numérique Nous
-                  accompagnons les entreprises dans leur transformation
-                  numérique : Conseil, formation et réalisation IT
-                </figcaption>
-              </ul>
-            )}
-          </div>
-        </div>
-      </div>
+                <g id="humanInner">
+                  {/* Image content */}
+                  <ImageContent />
+
+                  {/* Points (circles) rendered above the image */}
+                  {predefinedPoints.map((point) => (
+                    <circle
+                      key={point.id}
+                      id={point.id}
+                      cx={point.cx}
+                      cy={point.cy}
+                      r="10"
+                      className={"newcircle " + (selectedPoint?.id === point.id ? "selected" : "")}
+                      data-x={point.dataX}
+                      data-y={point.dataY}
+                      onClick={() => handleCircleClick(point)} 
+                    />
+                  ))}
+                </g>
+              </svg>
+
+              {pinConfirmVisible && (
+                <div id="pinConfirm" className="pin-confirm">
+                  <div id="pinConfirmBtns">
+                    <button className="btn btn-success" onClick={handleConfirmTrue}>
+                      &#10004;
+                    </button>
+                    <button className="btn btn-danger" onClick={handleCancelPin}>
+                      &#10007;
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {pinFormVisible && (
+                <form id="pinForm" className="pin-form" onSubmit={(e) => e.preventDefault()}>
+                  <fieldset>
+                    <legend>Pin Form</legend>
+                    <div className="form-group">
+                      <label htmlFor="textinput">Name of sick</label>
+                      <input id="textinput" name="textinput" type="text" />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="textinput">Marked area</label>
+                      <input id="textinput" name="textinput" type="text" />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="textarea">Comment</label>
+                      <textarea id="textarea" name="textarea"></textarea>
+                    </div>
+                    <div className="form-group">
+                      <label>Confirm</label>
+                      <button type="button" className="btn btn-success" onClick={handleFormSubmit}>
+                        OK
+                      </button>
+                      <button type="button" className="btn btn-danger" onClick={handleFormCancel}>
+                        Cancel
+                      </button>
+                    </div>
+                  </fieldset>
+                </form>
+              )}
+
+              {pinConfirmSuccessVisible && (
+                <div id="pinConfirmSucces" className="pin-confirm-succes">
+                  <button className="btn btn-success" onClick={handleSuccessClick}>
+                    &#10004; Registration Successful
+                  </button>
+                </div>
+              )}
+            </div>
+            <DescriptionCard selectedPoint={selectedPoint} x={card_x} y={card_y} navbarHeight={navbarHeight} />
+          </>
+        ) : currentPage === 'podcast' ? (
+          <Podcast />
+        ) : (
+          // Full page for Bad UI
+          <BadUi />
+        )
+      }
     </>
   );
-}
+};
 
 export default App;

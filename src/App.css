@@ -1,0 +1,82 @@
+body {
+  background-image: url('https://img.freepik.com/free-photo/water-texture-background-blue-abstract-design_53876-145219.jpg?t=st=1733457922~exp=1733461522~hmac=e7d709e36a8bb0b814af62fb021beeb8ab54866b9bd331fb9110fbfa43ec29d0&w=1060');
+  background-size: cover;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.humanAnatomy {
+  position: absolute;
+  top: 33%;
+  left: 13%;
+  transform: translate(-50%, -50%);
+  scale: 0.7;
+  z-index: 5;
+  background: url(../img/human.png) no-repeat;
+  background-size: 100% 100%;
+  cursor: pointer;
+}
+.gradient-custom {
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to bottom, rgb(6, 63, 197), rgba(37, 117, 252, 0));
+}
+
+ .navbar {
+  width: 100%;
+display: flex;
+align-items: center;
+padding: 1rem;
+position: fixed;
+top: 0px;
+left: 0;
+
+}
+.navbar-nav  .nav-link {
+margin-left: 20px;  /* Adjust the space between each nav item */
+font-size: 1.5rem !important;
+}
+
